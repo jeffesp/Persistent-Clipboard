@@ -68,9 +68,7 @@
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
-  </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Debug\</OutputPath>
@@ -148,7 +146,6 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Properties\app.manifest" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="clipboard.ico" />
