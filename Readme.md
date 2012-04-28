@@ -1,33 +1,33 @@
 Persistent Clipboard
 
 Saves clipboard entries for later use. Keeps the information around across 
-restarts. In fact, it currently keeps them around forever.
+restarts. 
 
-- Will not save blank or duplicate (same text twice in a row) entries.
-- Ctrl+Shift+F12 will show the form.
-- Enter or Click on an item puts that item on the clipboard and hides the form.
-- Esc will hide the form without making a selection
+    - Will not save blank or duplicate (same text twice in a row) entries.
+    - Ctrl+Shift+Ins will show the form.
+    - Enter or Click on an item puts that item on the clipboard and hides the form.
+    - Esc will hide the form without making a selection
 
 If you use it and run Visual Studio as an Administrator, you will need to run 
 this as an admin as well.
 
 TODO:
-0. Remove old entries from database.
-1. Allow portable mode which stores data in a subdirectory instead of user profile.
-2. Hide on startup? Show on startup? What buttons to display (min, max, close)?
-3. Context menu on list
-  a. Delete
-  b. Clear
-4. NotifyIcon and splash screen
-5. Searching the history and display.
-6. Auto paste on select - how do you even do that?
-7. Allow user defined static entries.
+    0. Remove old entries from database.
+    1. Allow portable mode which stores data in a subdirectory instead of user profile.
+    2. Hide on startup? Show on startup? What buttons to display (min, max, close)?
+    3. Context menu on list
+      a. Delete
+      b. Clear
+    4. NotifyIcon and splash screen
+    5. Searching the history and display.
+    6. Auto paste on select - how do you even do that?
+    7. Allow user defined static entries.
 
 LICENSE
 
 The MIT License
 
-Copyright (c) 2010 Jeff Espenschied
+Copyright (c) 2012 Jeff Espenschied
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
