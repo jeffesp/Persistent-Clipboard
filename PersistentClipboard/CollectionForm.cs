@@ -6,14 +6,15 @@ using System.Windows.Forms;
 using System.Security.Permissions;
 using System.IO;
 
+using Collections;
+
 namespace PersistentClipboard
 {
     public partial class CollectionForm : Form, IClicpboardCollector
     {        
         private const int WM_CLIPBOARDUPDATE = 0x31d;
-        private Dictionary<long, string> clippedText;
+        private CircularQueue<ClippedItem> clippedText;
         private string lastClippedText;
-        private Timer cleanupTimer;
         private FileStream persistentData;
         private static string appDataFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"JeffEsp\PersistentClipboard");
         private static string persistenceFile = Path.Combine(appDataFolder, "PersistentDictionary.xml");
@@ -21,9 +22,9 @@ namespace PersistentClipboard
         public CollectionForm()
         {
             InitializeComponent();
-            clippedText = new Dictionary<long, string>();
+            clippedText = new CircularQueue<ClippedItem>(250);
             if (clippedText.Count > 0)
-                lastClippedText = clippedText.OrderByDescending(x => x.Key).First().Value;
+                lastClippedText = clippedText.Reverse().First().Content;
 
             Program.Logger.InfoFormat("Loaded database in {0} and starting to collect clippings.", appDataFolder);
 
@@ -33,19 +34,6 @@ namespace PersistentClipboard
             }            
 
             persistentData = File.Open(persistenceFile, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-
-            cleanupTimer = new Timer();
-            cleanupTimer.Interval = 10 * 1000;
-            cleanupTimer.Tick += new EventHandler(cleanupTimer_Tick);
-            cleanupTimer.Start();
-        }
-
-        void cleanupTimer_Tick(object sender, EventArgs e)
-        {
-            cleanupTimer.Stop();
-            CleanOldEntries();
-            cleanupTimer.Interval = 60 * 60 * 4 * 1000; // 4 hours
-            cleanupTimer.Start();
         }
 
         protected override void WndProc(ref System.Windows.Forms.Message m)
@@ -58,7 +46,7 @@ namespace PersistentClipboard
                     if (!currentText.Equals(lastClippedText) && !String.IsNullOrEmpty(currentText.Trim()))
                     {
                         lastClippedText = currentText;
-                        clippedText.Add(DateTime.UtcNow.Ticks, currentText);
+                        clippedText.Enqueue(new ClippedItem { Id = DateTime.UtcNow.Ticks, Content = currentText });
                         Program.Logger.DebugFormat("Added: {0}", lastClippedText);
                     }
                 }
@@ -69,8 +57,6 @@ namespace PersistentClipboard
 
         public new void Dispose()
         {
-            cleanupTimer.Stop();
-            CleanOldEntries();
             persistentData.Dispose();
             base.Dispose();
             Program.Logger.Info("Closed database and stopped collecting clippings.");
@@ -88,7 +74,7 @@ namespace PersistentClipboard
         {
             get
             {
-                return clippedText.Select(kv => new ClippedItem() { Id = kv.Key, Content = kv.Value }).OrderByDescending(ci => ci.Id);
+                return clippedText.OrderByDescending(item => item.Id);
             }
         }
 
@@ -105,7 +91,7 @@ namespace PersistentClipboard
 
         public void RemoveItem(ClippedItem item)
         {
-            clippedText.Remove(item.Id);
+            clippedText.Remove(item);
             Program.Logger.DebugFormat("Removed: {0}", item);
         }
 
@@ -122,13 +108,6 @@ namespace PersistentClipboard
         public void DisableCollection()
         {
             RemoveClipboardFormatListener(this.Handle);
-        }
-
-        private void CleanOldEntries()
-        {
-            var ticks = DateTime.Today.AddDays(-30).Ticks;
-            foreach (var item in clippedText.Where(ci => ci.Key < ticks))
-                clippedText.Remove(item.Key);
         }
 
         [DllImport("user32.dll", EntryPoint = "AddClipboardFormatListener")]
