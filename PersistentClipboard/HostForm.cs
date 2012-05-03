@@ -121,6 +121,7 @@ namespace PersistentClipboard
             int currentIndex = clippedListBox.SelectedIndex;
             collectionForm.RemoveItem((ClippedItem)clippedListBox.SelectedItem);
             clippedListBox.Items.RemoveAt(currentIndex);
+            clippedListBox.SelectedIndex = Math.Min(currentIndex, clippedListBox.Items.Count - 1);
         }
 
         private void SelectItem()

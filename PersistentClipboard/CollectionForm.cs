@@ -38,10 +38,16 @@ namespace PersistentClipboard
         private void persistenceTimer_Tick(object sender, EventArgs e)
         {
             persistenceTimer.Stop();
+            SaveList();
+            persistenceTimer.Start();
+        }
+
+        private void SaveList()
+        {
             List<ClippedItem> items;
             lock (clippedText) items = clippedText.ToList();
+            // TODO: should be done on a background thread(?)
             ClippedItemFile.Save(items);
-            persistenceTimer.Start();
         }
 
         protected override void WndProc(ref System.Windows.Forms.Message m)
@@ -105,6 +111,7 @@ namespace PersistentClipboard
         public void RemoveItem(ClippedItem item)
         {
             lock (clippedText) clippedText.Remove(item);
+            // SaveList();
             Program.Logger.DebugFormat("Removed: {0}", item);
         }
 

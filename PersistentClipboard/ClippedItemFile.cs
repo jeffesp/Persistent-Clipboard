@@ -51,26 +51,28 @@ namespace PersistentClipboard
         private static void LoadFromStream(Stream s, List<ClippedItem> items)
         {
             // TODO: this can blow up in loading the file, or parsing ints from the file.
+            // should handle this by deleting the file, and then letting the user know about this.
             using (var reader = new XmlTextReader(s))
             {
                 var document = XDocument.Load(reader);
 
-                foreach (XElement item in document.Element("items").Elements())
+                var fileItems = document.Element("items");
+                if (fileItems != null)
                 {
-                    items.Add(new ClippedItem { Id = Int64.Parse(item.Element("id").Value), Content = item.Element("content").Value });
+                    items.AddRange(fileItems.Elements().Select(item => new ClippedItem {Id = Int64.Parse(item.Element("id").Value), Content = item.Element("content").Value}));
                 }
             }
         }
 
-        private static void SaveToStream(Stream s, List<ClippedItem> items)
+        private static void SaveToStream(Stream s, IEnumerable<ClippedItem> items)
         {
-            using (var writer = new XmlTextWriter(s, UTF8Encoding.UTF8))
+            using (var writer = new XmlTextWriter(s, Encoding.UTF8))
             {
                 var elements = new XElement("items");
 
                 foreach (ClippedItem item in items)
                 {
-                    elements.Add(new XElement("item", new XElement("id", item.Id), new XElement("content", item.Content)));
+                    elements.Add(new XElement("item", new XElement("id", item.Id), new XElement("content", new XCData(item.Content))));
                 }
 
                 var document = new XDocument(elements);
