@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Windows.Forms;
-using log4net;
 
 namespace PersistentClipboard
 {
@@ -16,8 +15,7 @@ namespace PersistentClipboard
         static void Main()
         {
 
-            log4net.Config.XmlConfigurator.Configure();
-            Logger = log4net.LogManager.GetLogger(typeof(Program));
+            Logger = new SimpleLogger(false);
 
             Application.ThreadException += new ThreadExceptionEventHandler(new ThreadExceptionHandler().ApplicationThreadException);
 
@@ -36,4 +34,5 @@ namespace PersistentClipboard
             Application.Run(new HostForm());
         }
     }
+
 }
