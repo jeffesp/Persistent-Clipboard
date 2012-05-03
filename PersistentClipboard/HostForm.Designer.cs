@@ -30,7 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(HostForm));
             this.clippedListBox = new System.Windows.Forms.ListBox();
-            this.searchLabel = new System.Windows.Forms.Label();
+            this.searchText = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // clippedListBox
@@ -50,21 +50,17 @@
             this.clippedListBox.Click += new System.EventHandler(this.clippedListBox_Click);
             this.clippedListBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.clippedListBox_KeyUp);
             // 
-            // searchLabel
+            // searchText
             // 
-            this.searchLabel.AutoSize = true;
-            this.searchLabel.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.searchLabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.searchLabel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.searchLabel.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.searchLabel.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.searchLabel.Location = new System.Drawing.Point(0, 506);
-            this.searchLabel.MaximumSize = new System.Drawing.Size(383, 19);
-            this.searchLabel.MinimumSize = new System.Drawing.Size(383, 19);
-            this.searchLabel.Name = "searchLabel";
-            this.searchLabel.Size = new System.Drawing.Size(383, 19);
-            this.searchLabel.TabIndex = 2;
-            this.searchLabel.Visible = false;
+            this.searchText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.searchText.Location = new System.Drawing.Point(0, 504);
+            this.searchText.Name = "searchText";
+            this.searchText.Size = new System.Drawing.Size(384, 23);
+            this.searchText.TabIndex = 1;
+            this.searchText.Visible = false;
+            this.searchText.WordWrap = false;
+            this.searchText.TextChanged += new System.EventHandler(this.searchText_TextChanged);
+            this.searchText.KeyUp += new System.Windows.Forms.KeyEventHandler(this.searchText_KeyUp);
             // 
             // HostForm
             // 
@@ -72,7 +68,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(384, 526);
-            this.Controls.Add(this.searchLabel);
+            this.Controls.Add(this.searchText);
             this.Controls.Add(this.clippedListBox);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
@@ -89,7 +85,7 @@
         #endregion
 
         private System.Windows.Forms.ListBox clippedListBox;
-        private System.Windows.Forms.Label searchLabel;
+        private System.Windows.Forms.TextBox searchText;
     }
 }
 

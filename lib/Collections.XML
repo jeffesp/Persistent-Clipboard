@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Collections</name>
+    </assembly>
+    <members>
+        <member name="T:Collections.CircularQueue`1">
+            <summary>Implements a Queue with a fixed size. Once full, the next enqueue operation overwrites the first element entered.</summary>
+        </member>
+        <member name="M:Collections.CircularQueue`1.#ctor(System.Int32)">
+            <summary>Initializes a new instance of the Collections.CircularQueue&lt;T&gt; class that is empty and has the specified capacity.</summary>
+            <param name="capacity">The maxiumum number of items the queue can contain.</param>
+        </member>
+        <member name="M:Collections.CircularQueue`1.Clear">
+            <summary>
+            Clears all data from the queue.
+            </summary>
+        </member>
+        <member name="M:Collections.CircularQueue`1.Contains(`0)">
+            <summary>
+            Determines whether an item is in the queue.
+            </summary>
+            <param name="item">The item locate in the queue.</param>
+            <returns><c>true</c> if the item is found, <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:Collections.CircularQueue`1.CopyTo(`0[],System.Int32)">
+            <summary>
+            Copies the elements of the queue to an <see cref="T:System.Array"/>, starting at a particular <see cref="T:System.Array"/> index.
+            </summary>
+            <param name="array">The <see cref="T:System.Array"/> that is the destination of the copy operation.</param>
+            <param name="arrayIndex">The zero-based index into the queue where the copy operation begins.</param>
+        </member>
+        <member name="M:Collections.CircularQueue`1.Enqueue(`0)">
+            <summary>Adds an item to the queue. If the queue is full, the item that was added first will be overwritten.</summary>
+            <param name="item">The item to add to the queue.</param>
+        </member>
+        <member name="M:Collections.CircularQueue`1.Dequeue">
+            <summary>Removes an item from the head of the queue and returns it.</summary>
+            <returns>The value from the queue.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when there are no items in the queue.</exception>
+        </member>
+        <member name="M:Collections.CircularQueue`1.Peek">
+            <summary> Returns the item at the head of the queue. Does not remove from the queue. </summary>
+            <returns> The value from the queue. </returns>
+            <exception cref="T:System.InvalidOperationException"> Thrown when there are no items in the queue. </exception>
+        </member>
+        <member name="M:Collections.CircularQueue`1.Peek(System.Int32)">
+            <summary> Returns the item <c>index</c> items from the head of the queue. </summary>
+            <returns> The value from the queue. </returns>
+            <exception cref="T:System.InvalidOperationException"> Thrown when there are no items in the queue </exception>
+        </member>
+        <member name="M:Collections.CircularQueue`1.Reverse">
+            <summary>Creates a new instance of CircularQueue with the same items as the current instance with the items in reverse order.</summary>
+            <returns>A new instance of CircularQueue with the same items as the current instance with the items in reverse order.</returns>
+        </member>
+        <member name="P:Collections.CircularQueue`1.IsFull">
+            <summary>Returns true if the queue has <see cref="P:Collections.CircularQueue`1.Capacity"/> items in it.</summary>
+            <returns>True if the queue has <see cref="P:Collections.CircularQueue`1.Capacity"/> items in it.</returns>
+        </member>
+        <member name="P:Collections.CircularQueue`1.IsEmpty">
+            <summary>Returns true if the queue has no items in it.</summary>
+            <returns>True if the queue has no items in it.</returns>
+        </member>
+        <member name="P:Collections.CircularQueue`1.Capacity">
+            <summary>Gets the maximum number of elements contained in the Collections.CircularQueue&lt;T&gt;></summary>
+            <returns>The maximum number of elements contained in the Collections.CircularQueue&lt;T&gt;</returns>
+        </member>
+        <member name="P:Collections.CircularQueue`1.Count">
+            <summary>Gets the current number of elements contained in the Collections.CircularQueue&lt;T&gt;</summary>
+            <returns>The current number of elements contained in the Collections.CircularQueue&lt;T&gt;</returns>
+        </member>
+    </members>
+</doc>

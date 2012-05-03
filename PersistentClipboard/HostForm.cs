@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -38,8 +39,8 @@ namespace PersistentClipboard
             Program.Logger.Debug("Deactivated. Hiding.");
             if (searching)
             {
-                searchLabel.Text = String.Empty;
-                searchLabel.Hide();
+                searchText.Text = String.Empty;
+                searchText.Hide();
                 searching = false;
             }
             Hide();
@@ -90,68 +91,43 @@ namespace PersistentClipboard
         {
             e.Handled = false;
 
-            if (searching)
+            if (e.KeyCode == Keys.OemQuestion)
             {
-                // Escape means stop searching, Delete or Backspace removes last character
-                if (e.KeyCode == Keys.Escape)
-                {
-                    searching = false;
-                    searchLabel.Text = String.Empty;
-                    searchLabel.Visible = false;
-                    UpdateItems();
-                    e.Handled = true;
-                }
-                else if (e.KeyCode == Keys.Back && searchLabel.Text.Length > 0)
-                {
-                    searchLabel.Text = searchLabel.Text.Substring(0, searchLabel.Text.Length - 1);
-                    UpdateItems(searchLabel.Text);
-                    e.Handled = true;
-                }
-                else
-                {
-                    var kc = new KeysConverter();
-                    string keyCodeString = kc.ConvertToString(e.KeyCode);
-                    if (keyCodeString.Length == 1)
-                    {
-                        Program.Logger.DebugFormat("got char: {0}", keyCodeString);
-                        searchLabel.Text += e.Shift ? keyCodeString : keyCodeString.ToLower();
-                        UpdateItems(searchLabel.Text);
-                        e.Handled = true;
-                    }
-                }
+                searching = true;
+                searchText.Visible = true;
+                searchText.Text = String.Empty;
+                searchText.Focus();
+                e.Handled = true;
             }
-            else
+            else if (e.KeyCode == Keys.Delete)
             {
-                if (e.KeyCode == Keys.OemQuestion)
-                {
-                    searching = true;
-                    searchLabel.Visible = true;
-                    searchLabel.Text = String.Empty;
-                    e.Handled = true;
-                }
-                else if (e.KeyCode == Keys.Delete)
-                {
-                    // Remove current item
-                    int currentIndex = clippedListBox.SelectedIndex;
-                    collectionForm.RemoveItem((ClippedItem)clippedListBox.SelectedItem);
-                    clippedListBox.Items.RemoveAt(currentIndex);
-                    clippedListBox.SelectedIndex = currentIndex > clippedListBox.Items.Count ? currentIndex + 1 : currentIndex - 1;
-                    e.Handled = true;
-                }
-                else if (e.KeyCode == Keys.Escape)
-                {
-                    Hide();
-                    e.Handled = true;
-                }
+                RemoveItem();
+                e.Handled = true;
             }
-
-            if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Return)
+            else if (e.KeyCode == Keys.Escape)
             {
-                UpdateClipboardWithSelectedItem();
                 Hide();
                 e.Handled = true;
-                Program.Logger.DebugFormat("Selected: {0}", clippedListBox.SelectedItem);
             }
+            else if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Return)
+            {
+                SelectItem();
+                e.Handled = true;
+            }
+        }
+
+        private void RemoveItem()
+        {
+            int currentIndex = clippedListBox.SelectedIndex;
+            collectionForm.RemoveItem((ClippedItem)clippedListBox.SelectedItem);
+            clippedListBox.Items.RemoveAt(currentIndex);
+        }
+
+        private void SelectItem()
+        {
+            UpdateClipboardWithSelectedItem();
+            Hide();
+            Program.Logger.DebugFormat("Selected: {0}", clippedListBox.SelectedItem);
         }
 
         private void KeyboardHookKeyDown()
@@ -160,15 +136,40 @@ namespace PersistentClipboard
             Show(DesktopWindow.Instance);
         }
 
-        private void searchText_KeyDown(object sender, KeyEventArgs e)
+        private void searchText_TextChanged(object sender, EventArgs e)
         {
+            UpdateItems(searchText.Text);
+        }
+
+        private void searchText_KeyUp(object sender, KeyEventArgs e)
+        {
+            e.Handled = false;
+            // Escape means stop searching
             if (e.KeyCode == Keys.Escape)
             {
-                Hide();
+                searching = false;
+                searchText.Text = String.Empty;
+                searchText.Visible = false;
+                UpdateItems();
                 e.Handled = true;
-                return;
             }
-            e.Handled = false;
+            else if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Return)
+            {
+                SelectItem();
+                e.Handled = true;
+            }
+            else if (e.KeyCode == Keys.Up)
+            {
+                if (clippedListBox.SelectedIndex > 0)
+                    clippedListBox.SelectedIndex--;
+                e.Handled = true;
+            }
+            else if (e.KeyCode == Keys.Down)
+            {
+                if (clippedListBox.SelectedIndex < clippedListBox.Items.Count)
+                    clippedListBox.SelectedIndex++;
+                e.Handled = true;
+            }
         }
     }
 }

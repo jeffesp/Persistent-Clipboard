@@ -120,6 +120,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClippedItem.cs" />
+    <Compile Include="ClippedItemFile.cs" />
     <Compile Include="CollectionForm.cs">
       <SubType>Form</SubType>
     </Compile>
