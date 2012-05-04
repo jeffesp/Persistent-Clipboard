@@ -14,8 +14,8 @@ TODO:
 
 1. Better searching in history
 2. Add context menu when clicking on with delete and clear commands.
-3. NotifyIcon and splash screen
-4. Allow user defined static entries.
+3. Allow user defined static entries.
+4. NotifyIcon 
 5. Allow portable mode which stores data in a subdirectory instead of user profile.
 6. Auto paste on select - how do you even do that?
 

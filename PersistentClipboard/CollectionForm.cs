@@ -15,25 +15,33 @@ namespace PersistentClipboard
         private const int WM_CLIPBOARDUPDATE = 0x31d;
         private CircularQueue<ClippedItem> clippedText;
         private string lastClippedText;
-        private FileStream persistentData;
-        private static string appDataFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"JeffEsp\PersistentClipboard");
-        private static string persistenceFile = Path.Combine(appDataFolder, "PersistentDictionary.xml");
+        private Timer persistenceTimer;
 
         public CollectionForm()
         {
             InitializeComponent();
-            clippedText = new CircularQueue<ClippedItem>(250);
-            if (clippedText.Count > 0)
-                lastClippedText = clippedText.Reverse().First().Content;
-
-            Program.Logger.InfoFormat("Loaded database in {0} and starting to collect clippings.", appDataFolder);
-
-            if (!Directory.Exists(appDataFolder))
+            clippedText = ClippedItemFile.Load();
+            lock (clippedText)
             {
-                Directory.CreateDirectory(appDataFolder);
-            }            
+                if (clippedText.Count > 0)
+                    lastClippedText = clippedText.First().Content;
+            }
 
-            persistentData = File.Open(persistenceFile, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            persistenceTimer = new Timer();
+            persistenceTimer.Interval = 60 * 60 * 30; // 30 min 
+            persistenceTimer.Tick += persistenceTimer_Tick;
+            persistenceTimer.Start();
+
+            Program.Logger.InfoFormat("Loaded database and starting to collect clippings.");
+        }
+
+        private void persistenceTimer_Tick(object sender, EventArgs e)
+        {
+            persistenceTimer.Stop();
+            List<ClippedItem> items;
+            lock (clippedText) items = clippedText.ToList();
+            ClippedItemFile.Save(items);
+            persistenceTimer.Start();
         }
 
         protected override void WndProc(ref System.Windows.Forms.Message m)
@@ -46,7 +54,7 @@ namespace PersistentClipboard
                     if (!currentText.Equals(lastClippedText) && !String.IsNullOrEmpty(currentText.Trim()))
                     {
                         lastClippedText = currentText;
-                        clippedText.Enqueue(new ClippedItem { Id = DateTime.UtcNow.Ticks, Content = currentText });
+                        lock (clippedText) clippedText.Enqueue(new ClippedItem { Id = DateTime.UtcNow.Ticks, Content = currentText });
                         Program.Logger.DebugFormat("Added: {0}", lastClippedText);
                     }
                 }
@@ -57,7 +65,6 @@ namespace PersistentClipboard
 
         public new void Dispose()
         {
-            persistentData.Dispose();
             base.Dispose();
             Program.Logger.Info("Closed database and stopped collecting clippings.");
         }
@@ -66,7 +73,7 @@ namespace PersistentClipboard
         {
             get
             {
-                return clippedText.Count > 0;
+                lock(clippedText) return clippedText.Count > 0;
             }
         }
 
@@ -74,7 +81,12 @@ namespace PersistentClipboard
         {
             get
             {
-                return clippedText.OrderByDescending(item => item.Id);
+                List<ClippedItem> items;
+                lock (clippedText)
+                {
+                    items = clippedText.ToList();
+                }
+                return items.OrderByDescending(item => item.Id);
             }
         }
 
@@ -85,13 +97,14 @@ namespace PersistentClipboard
                 return OrderedItems.Where(ci => ci.Content.Trim().ToLowerInvariant().Contains(text.ToLowerInvariant().Trim()));
             }
             else
+            {
                 return OrderedItems;
-
+            }
         }
 
         public void RemoveItem(ClippedItem item)
         {
-            clippedText.Remove(item);
+            lock (clippedText) clippedText.Remove(item);
             Program.Logger.DebugFormat("Removed: {0}", item);
         }
 
