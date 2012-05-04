@@ -2,25 +2,32 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
-using System.Security.Permissions;
-using System.IO;
 
 using Collections;
+
+using Timer = System.Windows.Forms.Timer;
 
 namespace PersistentClipboard
 {
     public partial class CollectionForm : Form, IClicpboardCollector
     {        
         private const int WM_CLIPBOARDUPDATE = 0x31d;
-        private CircularQueue<ClippedItem> clippedText;
+        private readonly object fileLocker = new object();
+        private readonly ILog logger;
+        private readonly CircularQueue<ClippedItem> clippedText;
+        private readonly Timer persistenceTimer;
         private string lastClippedText;
-        private Timer persistenceTimer;
 
-        public CollectionForm()
+        public CollectionForm(ILog logger)
         {
+            this.logger = logger;
             InitializeComponent();
-            clippedText = ClippedItemFile.Load();
+            lock (fileLocker)
+            {
+                clippedText = ClippedItemFile.Load();
+            }
             lock (clippedText)
             {
                 if (clippedText.Count > 0)
@@ -29,13 +36,13 @@ namespace PersistentClipboard
 
             persistenceTimer = new Timer();
             persistenceTimer.Interval = 60 * 60 * 30; // 30 min 
-            persistenceTimer.Tick += persistenceTimer_Tick;
+            persistenceTimer.Tick += PersistenceTimerTick;
             persistenceTimer.Start();
 
-            Program.Logger.InfoFormat("Loaded database and starting to collect clippings.");
+            logger.InfoFormat("Loaded database and starting to collect clippings.");
         }
 
-        private void persistenceTimer_Tick(object sender, EventArgs e)
+        private void PersistenceTimerTick(object sender, EventArgs e)
         {
             persistenceTimer.Stop();
             SaveList();
@@ -46,8 +53,7 @@ namespace PersistentClipboard
         {
             List<ClippedItem> items;
             lock (clippedText) items = clippedText.ToList();
-            // TODO: should be done on a background thread(?)
-            ClippedItemFile.Save(items);
+            lock (fileLocker) ClippedItemFile.Save(items);
         }
 
         protected override void WndProc(ref System.Windows.Forms.Message m)
@@ -61,7 +67,7 @@ namespace PersistentClipboard
                     {
                         lastClippedText = currentText;
                         lock (clippedText) clippedText.Enqueue(new ClippedItem { Id = DateTime.UtcNow.Ticks, Content = currentText });
-                        Program.Logger.DebugFormat("Added: {0}", lastClippedText);
+                        logger.DebugFormat("Added: {0}", lastClippedText);
                     }
                 }
                 m.Result = (IntPtr)0;
@@ -71,8 +77,9 @@ namespace PersistentClipboard
 
         public new void Dispose()
         {
+            SaveList();
             base.Dispose();
-            Program.Logger.Info("Closed database and stopped collecting clippings.");
+            logger.Info("Closed database and stopped collecting clippings.");
         }
 
         public bool HasItems
@@ -111,8 +118,9 @@ namespace PersistentClipboard
         public void RemoveItem(ClippedItem item)
         {
             lock (clippedText) clippedText.Remove(item);
-            // SaveList();
-            Program.Logger.DebugFormat("Removed: {0}", item);
+            // do in background as to not block UI thread for file IO.
+            ThreadPool.QueueUserWorkItem((arg) => SaveList());
+            logger.DebugFormat("Removed: {0}", item);
         }
 
         public string GetLastItem()

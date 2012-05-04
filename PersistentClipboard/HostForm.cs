@@ -10,9 +10,12 @@ namespace PersistentClipboard
         private IClicpboardCollector collectionForm;
         private GlobalHotkey hotkey;
         private bool searching = false;
+        private readonly ILog logger;
 
-        public HostForm()
+        public HostForm(ILog logger)
         {
+            this.logger = logger;
+
             InitializeComponent();
             Load += new EventHandler(HostForm_Load);
             Activated += new EventHandler(HostForm_Activated);
@@ -27,7 +30,7 @@ namespace PersistentClipboard
 
         void HostForm_Activated(object sender, EventArgs e)
         {
-            Program.Logger.Debug("Activated.");
+            logger.Debug("Activated.");
             UpdateItems();
             TopMost = true;
             clippedListBox.Focus();
@@ -36,7 +39,7 @@ namespace PersistentClipboard
 
         void HostForm_Deactivate(object sender, EventArgs e)
         {
-            Program.Logger.Debug("Deactivated. Hiding.");
+            logger.Debug("Deactivated. Hiding.");
             if (searching)
             {
                 searchText.Text = String.Empty;
@@ -48,7 +51,7 @@ namespace PersistentClipboard
 
         private void HostForm_Load(System.Object sender, System.EventArgs e)
         {
-            collectionForm = new CollectionForm();
+            collectionForm = new CollectionForm(logger);
             collectionForm.EnableCollection();
             hotkey = new GlobalHotkey(KeyboardHookKeyDown, Keys.Insert, Keys.Control | Keys.Shift);
             UpdateItems();
@@ -60,6 +63,7 @@ namespace PersistentClipboard
             {
                 collectionForm.DisableCollection();
                 Clipboard.SetText(clippedListBox.SelectedItem.ToString());
+                logger.DebugFormat("{0}, {1}", clippedListBox.SelectedIndex, clippedListBox.SelectedItem);
                 collectionForm.EnableCollection();
             }
         }
@@ -68,7 +72,7 @@ namespace PersistentClipboard
         {
             UpdateClipboardWithSelectedItem();
             Hide();
-            Program.Logger.DebugFormat("Selected: {0}", clippedListBox.SelectedItem);
+            logger.DebugFormat("Selected: {0}", clippedListBox.SelectedItem);
         }
 
         private void UpdateItems()
@@ -111,6 +115,7 @@ namespace PersistentClipboard
             }
             else if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Return)
             {
+                logger.DebugFormat("Handling enter/return. SelectedIndex: {0}", clippedListBox.SelectedIndex);
                 SelectItem();
                 e.Handled = true;
             }
@@ -118,6 +123,7 @@ namespace PersistentClipboard
 
         private void RemoveItem()
         {
+            logger.DebugFormat("Deleting Item. SelectedIndex: {0}", clippedListBox.SelectedIndex);
             int currentIndex = clippedListBox.SelectedIndex;
             collectionForm.RemoveItem((ClippedItem)clippedListBox.SelectedItem);
             clippedListBox.Items.RemoveAt(currentIndex);
@@ -127,13 +133,13 @@ namespace PersistentClipboard
         private void SelectItem()
         {
             UpdateClipboardWithSelectedItem();
+            logger.DebugFormat("Selected: {0}", clippedListBox.SelectedItem);
             Hide();
-            Program.Logger.DebugFormat("Selected: {0}", clippedListBox.SelectedItem);
         }
 
         private void KeyboardHookKeyDown()
         {
-            Program.Logger.DebugFormat("Caught keyboard hook. Currently: {0}", this.Visible ? "Visible" : "Not Visible");
+            logger.DebugFormat("Caught keyboard hook. Currently: {0}", this.Visible ? "Visible" : "Not Visible");
             Show(DesktopWindow.Instance);
         }
 

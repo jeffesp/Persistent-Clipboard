@@ -31,7 +31,7 @@ namespace PersistentClipboard
                 System.Environment.Exit(0);
             }
 
-            Application.Run(new HostForm());
+            Application.Run(new HostForm(Logger));
         }
     }
 
