@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace PersistentClipboard
@@ -16,10 +13,11 @@ namespace PersistentClipboard
         void Error(string message, Exception e);
         void ErrorFormat(string message, params object[] args);
     }
-    
+
     internal class SimpleLogger : ILog
     {
-        private bool enabled = false;
+        private readonly bool enabled = false;
+
         public SimpleLogger(bool enable)
         {
             enabled = enable;
@@ -27,51 +25,63 @@ namespace PersistentClipboard
 
         public void Debug(string message)
         {
-            System.Diagnostics.Debug.WriteLine(message);
-            if (enabled)
-                throw new NotImplementedException();
+            Log(Status.Debug, message, null);
         }
 
         public void DebugFormat(string message, params object[] args)
         {
-            System.Diagnostics.Debug.WriteLine(String.Format(message, args));
-            if (enabled)
-                throw new NotImplementedException();
+            Log(Status.Debug, message, args);
         }
 
         public void Info(string message)
         {
-            System.Diagnostics.Debug.WriteLine(message);
-            if (enabled)
-                throw new NotImplementedException();
+            Log(Status.Info, message, null);
         }
 
         public void InfoFormat(string message, params object[] args)
         {
-            System.Diagnostics.Debug.WriteLine(String.Format(message, args));
-            if (enabled)
-                throw new NotImplementedException();
+            Log(Status.Info, message, args);
         }
 
         public void Error(string message)
         {
-            System.Diagnostics.Debug.WriteLine(message);
-            if (enabled)
-                throw new NotImplementedException();
+            Log(Status.Error, message, null);
         }
 
         public void Error(string message, Exception e)
         {
-            System.Diagnostics.Debug.WriteLine(String.Format(message + "Exception: {0}", e));
-            if (enabled)
-                throw new NotImplementedException();
+            Log(Status.Error, message + e, null);
         }
 
         public void ErrorFormat(string message, params object[] args)
         {
-            System.Diagnostics.Debug.WriteLine(String.Format(message, args));
-            if (enabled)
-                throw new NotImplementedException();
+            Log(Status.Error, message, args);
         }
+
+
+        private void Log(Status status, string message, params object[] args)
+        {
+            var formattedMessage = new StringBuilder();
+            if (enabled)
+            {
+                formattedMessage.AppendFormat("{0}: ", status);
+                if (args == null)
+                {
+                    formattedMessage.Append(message);
+                }
+                else
+                {
+                    formattedMessage.AppendFormat(message, args);
+                }
+                System.Diagnostics.Debug.WriteLine(formattedMessage);
+            }
+        }
+    }
+
+    internal enum Status
+    {
+        Debug,
+        Info,
+        Error,
     }
 }

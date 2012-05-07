@@ -8,14 +8,11 @@ namespace PersistentClipboard
     {
         public static ILog Logger { get; set; }
 
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
         [STAThread]
         static void Main()
         {
 
-            Logger = new SimpleLogger(false);
+            Logger = new SimpleLogger(true);
 
             Application.ThreadException += new ThreadExceptionEventHandler(new ThreadExceptionHandler().ApplicationThreadException);
 
@@ -28,7 +25,7 @@ namespace PersistentClipboard
             {
                 // Probably want something a little more sophisticated than this
                 MessageBox.Show(e.Message, "The application could not initialize.", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                System.Environment.Exit(0);
+                Environment.Exit(0);
             }
 
             Application.Run(new HostForm(Logger));
