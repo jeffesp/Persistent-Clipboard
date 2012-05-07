@@ -3,21 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using Collections;
 using System.Xml.Linq;
 using System.Xml;
+
+using Collections;
 
 namespace PersistentClipboard
 {
     public class ClippedItemFile
     {
-        private static string appDataFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"JeffEsp\PersistentClipboard");
+        private static string appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"JeffEsp\PersistentClipboard");
         private static string persistenceFile = Path.Combine(appDataFolder, "PersistentDictionary.xml");
 
 
         public static CircularQueue<ClippedItem> Load()
         {
-            List<ClippedItem> items = new List<ClippedItem>();
+            var items = new List<ClippedItem>();
 
             EnsureDataDirectoryExists();
 
@@ -29,6 +30,7 @@ namespace PersistentClipboard
                 }
             }
 
+            // TODO: some sort of creational pattern would allow this to be swapped out if necessary
             var result = new CircularQueue<ClippedItem>(250);
             foreach (ClippedItem item in items)
             {
