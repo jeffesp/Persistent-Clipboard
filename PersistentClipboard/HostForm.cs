@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -17,29 +16,20 @@ namespace PersistentClipboard
             this.logger = logger;
 
             InitializeComponent();
-            Load += new EventHandler(HostForm_Load);
-            Activated += new EventHandler(HostForm_Activated);
-            Deactivate += new EventHandler(HostForm_Deactivate);
-            FormClosing += new FormClosingEventHandler(HostForm_FormClosing);
-
-            trayIcon.MouseClick += new MouseEventHandler(TrayIconClick);
+            Load += HostFormLoad;
+            Activated += HostFormActivated;
+            Deactivate += HostFormDeactivate;
+            FormClosing += HostFormFormClosing;
+            trayIcon.MouseClick += TrayIconClick;
         }
 
-        private void TrayIconClick(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                Show(DesktopWindow.Instance);
-            }
-        }
-
-        void HostForm_FormClosing(object sender, FormClosingEventArgs e)
+        void HostFormFormClosing(object sender, FormClosingEventArgs e)
         {
             trayIcon.Dispose();
             collectionForm.Dispose();
         }
 
-        void HostForm_Activated(object sender, EventArgs e)
+        void HostFormActivated(object sender, EventArgs e)
         {
             logger.Debug("Activated.");
             UpdateItems();
@@ -48,7 +38,7 @@ namespace PersistentClipboard
             Focus();
         }
 
-        void HostForm_Deactivate(object sender, EventArgs e)
+        void HostFormDeactivate(object sender, EventArgs e)
         {
             logger.Debug("Deactivated. Hiding.");
             if (searching)
@@ -60,7 +50,7 @@ namespace PersistentClipboard
             Hide();
         }
 
-        private void HostForm_Load(System.Object sender, System.EventArgs e)
+        private void HostFormLoad(Object sender, EventArgs e)
         {
             collectionForm = new CollectionForm(logger);
             collectionForm.EnableCollection();
@@ -79,30 +69,14 @@ namespace PersistentClipboard
             }
         }
 
-        private void clippedListBox_Click(object sender, EventArgs e)
+        private void ClippedListBoxClick(object sender, EventArgs e)
         {
             UpdateClipboardWithSelectedItem();
             Hide();
             logger.DebugFormat("Selected: {0}", clippedListBox.SelectedItem);
         }
 
-        private void UpdateItems()
-        {
-            UpdateItems(String.Empty);
-        }
-
-        private void UpdateItems(string searchText)
-        {
-            if (collectionForm != null && collectionForm.HasItems)
-            {
-                clippedListBox.Items.Clear();
-                clippedListBox.Items.AddRange(collectionForm.Search(searchText).Take(30).ToArray());
-                if (clippedListBox.Items.Count > 1)
-                    clippedListBox.SelectedIndex = String.IsNullOrEmpty(searchText) ? 1 : 0;
-            }
-        }
-
-        private void clippedListBox_KeyUp(object sender, KeyEventArgs e)
+        private void ClippedListBoxKeyUp(object sender, KeyEventArgs e)
         {
             e.Handled = false;
 
@@ -132,6 +106,22 @@ namespace PersistentClipboard
             }
         }
 
+        private void UpdateItems()
+        {
+            UpdateItems(String.Empty);
+        }
+
+        private void UpdateItems(string searchText)
+        {
+            if (collectionForm != null && collectionForm.HasItems)
+            {
+                clippedListBox.Items.Clear();
+                clippedListBox.Items.AddRange(Enumerable.ToArray(collectionForm.Search(searchText).Take(30)));
+                if (clippedListBox.Items.Count > 1)
+                    clippedListBox.SelectedIndex = String.IsNullOrEmpty(searchText) ? 1 : 0;
+            }
+        }
+
         private void RemoveItem()
         {
             logger.DebugFormat("Deleting Item. SelectedIndex: {0}", clippedListBox.SelectedIndex);
@@ -154,12 +144,12 @@ namespace PersistentClipboard
             Show(DesktopWindow.Instance);
         }
 
-        private void searchText_TextChanged(object sender, EventArgs e)
+        private void SearchTextTextChanged(object sender, EventArgs e)
         {
             UpdateItems(searchText.Text);
         }
 
-        private void searchText_KeyUp(object sender, KeyEventArgs e)
+        private void SearchTextKeyUp(object sender, KeyEventArgs e)
         {
             e.Handled = false;
             // Escape means stop searching
@@ -189,5 +179,14 @@ namespace PersistentClipboard
                 e.Handled = true;
             }
         }
+
+        private void TrayIconClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                Show(DesktopWindow.Instance);
+            }
+        }
+
     }
 }

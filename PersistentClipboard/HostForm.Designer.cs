@@ -49,8 +49,8 @@
             this.clippedListBox.Name = "clippedListBox";
             this.clippedListBox.Size = new System.Drawing.Size(384, 527);
             this.clippedListBox.TabIndex = 0;
-            this.clippedListBox.Click += new System.EventHandler(this.clippedListBox_Click);
-            this.clippedListBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.clippedListBox_KeyUp);
+            this.clippedListBox.Click += new System.EventHandler(this.ClippedListBoxClick);
+            this.clippedListBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ClippedListBoxKeyUp);
             // 
             // searchText
             // 
@@ -61,8 +61,8 @@
             this.searchText.TabIndex = 1;
             this.searchText.Visible = false;
             this.searchText.WordWrap = false;
-            this.searchText.TextChanged += new System.EventHandler(this.searchText_TextChanged);
-            this.searchText.KeyUp += new System.Windows.Forms.KeyEventHandler(this.searchText_KeyUp);
+            this.searchText.TextChanged += new System.EventHandler(this.SearchTextTextChanged);
+            this.searchText.KeyUp += new System.Windows.Forms.KeyEventHandler(this.SearchTextKeyUp);
             // 
             // trayIcon
             // 
