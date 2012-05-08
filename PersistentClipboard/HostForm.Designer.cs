@@ -28,9 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(HostForm));
             this.clippedListBox = new System.Windows.Forms.ListBox();
             this.searchText = new System.Windows.Forms.TextBox();
+            this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.SuspendLayout();
             // 
             // clippedListBox
@@ -62,6 +64,12 @@
             this.searchText.TextChanged += new System.EventHandler(this.searchText_TextChanged);
             this.searchText.KeyUp += new System.Windows.Forms.KeyEventHandler(this.searchText_KeyUp);
             // 
+            // trayIcon
+            // 
+            this.trayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
+            this.trayIcon.Text = "Persistent Clipboard";
+            this.trayIcon.Visible = true;
+            // 
             // HostForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -86,6 +94,7 @@
 
         private System.Windows.Forms.ListBox clippedListBox;
         private System.Windows.Forms.TextBox searchText;
+        private System.Windows.Forms.NotifyIcon trayIcon;
     }
 }
 

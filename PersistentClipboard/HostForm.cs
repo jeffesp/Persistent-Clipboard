@@ -21,10 +21,21 @@ namespace PersistentClipboard
             Activated += new EventHandler(HostForm_Activated);
             Deactivate += new EventHandler(HostForm_Deactivate);
             FormClosing += new FormClosingEventHandler(HostForm_FormClosing);
+
+            trayIcon.MouseClick += new MouseEventHandler(TrayIconClick);
+        }
+
+        private void TrayIconClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                Show(DesktopWindow.Instance);
+            }
         }
 
         void HostForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            trayIcon.Dispose();
             collectionForm.Dispose();
         }
 
