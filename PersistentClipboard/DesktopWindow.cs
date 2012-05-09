@@ -6,11 +6,11 @@ namespace PersistentClipboard
 {
     public class DesktopWindow : IWin32Window
     {
-        private static DesktopWindow m_DesktopWindow = new DesktopWindow();
+        private static readonly DesktopWindow MDesktopWindow = new DesktopWindow();
 
         public static IWin32Window Instance
         {
-            get { return m_DesktopWindow; }
+            get { return MDesktopWindow; }
         }
 
         [DllImport("user32.dll")]

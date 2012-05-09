@@ -16,7 +16,7 @@ namespace PersistentClipboard
 
     internal class SimpleLogger : ILog
     {
-        private readonly bool enabled = false;
+        private readonly bool enabled;
 
         public SimpleLogger(bool enable)
         {

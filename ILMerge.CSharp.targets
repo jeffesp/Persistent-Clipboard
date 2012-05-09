@@ -1,0 +1,19 @@
+<Project 
+ DefaultTargets="Build" 
+ xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" /> -->
+
+ <Target Name="AfterBuild">
+   <CreateItem Include="@(ReferencePath)" Condition="'%(CopyLocal)'=='true'">
+       <Output TaskParameter="Include" ItemName="IlmergeAssemblies"/>
+   </CreateItem>
+   <Message Text="Merging into @(MainAssembly)" />
+   <Exec Command="&quot;$(ProgramFiles)\Microsoft\Ilmerge\Ilmerge.exe&quot; /out:@(MainAssembly) &quot;@(IntermediateAssembly)&quot; @(IlmergeAssemblies->'&quot;%(FullPath)&quot;', ' ')"/>
+   <Delete Files="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)')"/>
+ </Target>
+
+ <Target Name="_CopyFilesMarkedCopyLocal"/>
+
+</Project>
+<!-- use as <Import Project="$(MSBuildExtensionsPath)\Ilmerge.CSharp.targets" /> -->

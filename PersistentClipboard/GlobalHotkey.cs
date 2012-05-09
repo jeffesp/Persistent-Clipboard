@@ -9,25 +9,24 @@ namespace PersistentClipboard
     {
         private const int WH_KEYBOARD_LL = 13;
         private const int WM_KEYDOWN = 0x0100;
-        private LowLevelKeyboardProc proc;
-        private IntPtr hookID = IntPtr.Zero;
-        private HandleKeyDown keyDown;
+        private readonly LowLevelKeyboardProc proc;
+        private readonly IntPtr hookId = IntPtr.Zero;
+        private readonly HandleKeyDown keyHandleKeyDown;
+        private readonly Keys watchKey;
+        private readonly Keys watchModifers;
 
-        private Keys watchKey;
-        private Keys watchModifers;
-
-        internal GlobalHotkey(HandleKeyDown down, Keys key, Keys modifiers)
+        internal GlobalHotkey(HandleKeyDown handleKeyDown, Keys key, Keys modifiers)
         {
-            keyDown = down;
+            keyHandleKeyDown = handleKeyDown;
             watchKey = key;
             watchModifers = modifiers;
             proc = HookCallback;
-            hookID = SetHook(proc);
+            hookId = SetHook(proc);
         }
 
         ~GlobalHotkey()
         {
-            UnhookWindowsHookEx(hookID);
+            UnhookWindowsHookEx(hookId);
         }
 
         internal delegate void HandleKeyDown();
@@ -43,16 +42,15 @@ namespace PersistentClipboard
 
         private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
-            if (nCode >= 0 && wParam == (IntPtr)GlobalHotkey.WM_KEYDOWN)
+            if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
             {
                 int vkCode = Marshal.ReadInt32(lParam);
                 Keys k = (Keys)vkCode;
                 if (k == watchKey && Control.ModifierKeys == watchModifers)
-                    keyDown();
+                    keyHandleKeyDown();
             }
-            return CallNextHookEx(hookID, nCode, wParam, lParam);
+            return CallNextHookEx(hookId, nCode, wParam, lParam);
         }
-
 
         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 

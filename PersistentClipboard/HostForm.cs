@@ -7,8 +7,7 @@ namespace PersistentClipboard
     public partial class HostForm : Form
     {
         private IClicpboardCollector collectionForm;
-        private GlobalHotkey hotkey;
-        private bool searching = false;
+        private bool searching;
         private readonly ILog logger;
 
         public HostForm(ILog logger)
@@ -54,7 +53,7 @@ namespace PersistentClipboard
         {
             collectionForm = new CollectionForm(logger);
             collectionForm.EnableCollection();
-            hotkey = new GlobalHotkey(KeyboardHookKeyDown, Keys.Insert, Keys.Control | Keys.Shift);
+            new GlobalHotkey(KeyboardHookKeyDown, Keys.Insert, Keys.Control | Keys.Shift);
             UpdateItems();
         }
 
@@ -111,14 +110,14 @@ namespace PersistentClipboard
             UpdateItems(String.Empty);
         }
 
-        private void UpdateItems(string searchText)
+        private void UpdateItems(string search)
         {
             if (collectionForm != null && collectionForm.HasItems)
             {
                 clippedListBox.Items.Clear();
-                clippedListBox.Items.AddRange(Enumerable.ToArray(collectionForm.Search(searchText).Take(30)));
+                clippedListBox.Items.AddRange(Enumerable.ToArray(collectionForm.Search(search)));
                 if (clippedListBox.Items.Count > 1)
-                    clippedListBox.SelectedIndex = String.IsNullOrEmpty(searchText) ? 1 : 0;
+                    clippedListBox.SelectedIndex = String.IsNullOrEmpty(search) ? 1 : 0;
             }
         }
 
@@ -140,7 +139,7 @@ namespace PersistentClipboard
 
         private void KeyboardHookKeyDown()
         {
-            logger.DebugFormat("Caught keyboard hook. Currently: {0}", this.Visible ? "Visible" : "Not Visible");
+            logger.DebugFormat("Caught keyboard hook. Currently: {0}", Visible ? "Visible" : "Not Visible");
             Show(DesktopWindow.Instance);
         }
 

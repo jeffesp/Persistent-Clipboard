@@ -56,7 +56,7 @@ namespace PersistentClipboard
             lock (fileLocker) ClippedItemFile.Save(items);
         }
 
-        protected override void WndProc(ref System.Windows.Forms.Message m)
+        protected override void WndProc(ref Message m)
         {
             if (m.Msg == WM_CLIPBOARDUPDATE)
             {
@@ -109,17 +109,15 @@ namespace PersistentClipboard
             {
                 return OrderedItems.Where(ci => ci.Content.Trim().ToLowerInvariant().Contains(text.ToLowerInvariant().Trim()));
             }
-            else
-            {
-                return OrderedItems;
-            }
+
+            return OrderedItems;
         }
 
         public void RemoveItem(ClippedItem item)
         {
             lock (clippedText) clippedText.Remove(item);
             // do in background as to not block UI thread for file IO.
-            ThreadPool.QueueUserWorkItem((arg) => SaveList());
+            ThreadPool.QueueUserWorkItem(arg => SaveList());
             logger.DebugFormat("Removed: {0}", item);
         }
 
@@ -130,12 +128,12 @@ namespace PersistentClipboard
 
         public void EnableCollection()
         {
-            AddClipboardFormatListener(this.Handle);
+            AddClipboardFormatListener(Handle);
         }
 
         public void DisableCollection()
         {
-            RemoveClipboardFormatListener(this.Handle);
+            RemoveClipboardFormatListener(Handle);
         }
 
         [DllImport("user32.dll", EntryPoint = "AddClipboardFormatListener")]

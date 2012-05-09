@@ -6,13 +6,13 @@ namespace PersistentClipboard
 {
     static class Program
     {
-        static Mutex mutex = new Mutex(true, "{1A31407E-EDFB-43B8-95B5-D288C9052622}");
+        static readonly Mutex Mutex = new Mutex(true, "{1A31407E-EDFB-43B8-95B5-D288CA052622}");
         public static ILog Logger { get; set; }
 
         [STAThread]
         static void Main()
         {
-            if (mutex.WaitOne(TimeSpan.Zero, true))
+            if (Mutex.WaitOne(TimeSpan.Zero, true))
             {
                 Logger = new SimpleLogger(true);
 
@@ -31,7 +31,7 @@ namespace PersistentClipboard
                 }
 
                 Application.Run(new HostForm(Logger));
-                mutex.ReleaseMutex();
+                Mutex.ReleaseMutex();
             }
             else
             {

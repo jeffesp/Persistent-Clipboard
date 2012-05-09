@@ -7,7 +7,6 @@ namespace PersistentClipboard
         public void ApplicationThreadException(object sender, ThreadExceptionEventArgs e)
         {
             Program.Logger.Error("Caught thread exception: ", e.Exception);
-            return;
         }
     }
 }
