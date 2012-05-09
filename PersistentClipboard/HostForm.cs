@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Windows.Forms;
+using SimpleLogger;
 
 namespace PersistentClipboard
 {
@@ -8,9 +9,9 @@ namespace PersistentClipboard
     {
         private IClicpboardCollector collectionForm;
         private bool searching;
-        private readonly ILog logger;
+        private readonly ISimpleLogger logger;
 
-        public HostForm(ILog logger)
+        public HostForm(ISimpleLogger logger)
         {
             this.logger = logger;
 

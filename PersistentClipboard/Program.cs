@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Threading;
 using System.Windows.Forms;
+using SimpleLogger;
 
 namespace PersistentClipboard
 {
     static class Program
     {
-        public static ILog Logger { get; set; }
+        public static ISimpleLogger Logger { get; set; }
 
         [STAThread]
         static void Main()
         {
-            Logger = new SimpleLogger(true);
+            Logger = new SimpleLogger.SimpleLogger(true, Status.Debug, new ILogDestination[] { new DebugWindowLogDestination() });
 
             Application.ThreadException += new ThreadExceptionEventHandler(new ThreadExceptionHandler().ApplicationThreadException);
 

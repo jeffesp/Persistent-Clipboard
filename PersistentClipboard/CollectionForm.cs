@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using Collections;
 
 using Timer = System.Windows.Forms.Timer;
+using SimpleLogger;
 
 namespace PersistentClipboard
 {
@@ -15,12 +16,12 @@ namespace PersistentClipboard
     {        
         private const int WM_CLIPBOARDUPDATE = 0x31d;
         private readonly object fileLocker = new object();
-        private readonly ILog logger;
+        private readonly ISimpleLogger logger;
         private readonly CircularQueue<ClippedItem> clippedText;
         private readonly Timer persistenceTimer;
         private string lastClippedText;
 
-        public CollectionForm(ILog logger)
+        public CollectionForm(ISimpleLogger logger)
         {
             this.logger = logger;
             InitializeComponent();
