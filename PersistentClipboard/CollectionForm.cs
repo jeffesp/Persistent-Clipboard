@@ -6,8 +6,6 @@ using System.Threading;
 using System.Windows.Forms;
 
 using Collections;
-
-using Timer = System.Windows.Forms.Timer;
 using SimpleLogger;
 
 namespace PersistentClipboard
@@ -18,7 +16,6 @@ namespace PersistentClipboard
         private readonly object fileLocker = new object();
         private readonly ISimpleLogger logger;
         private readonly CircularQueue<ClippedItem> clippedText;
-        private readonly Timer persistenceTimer;
         private string lastClippedText;
 
         public CollectionForm(ISimpleLogger logger)
@@ -35,19 +32,7 @@ namespace PersistentClipboard
                     lastClippedText = clippedText.First().Content;
             }
 
-            persistenceTimer = new Timer();
-            persistenceTimer.Interval = 60 * 60 * 30; // 30 min 
-            persistenceTimer.Tick += PersistenceTimerTick;
-            persistenceTimer.Start();
-
             logger.InfoFormat("Loaded database and starting to collect clippings.");
-        }
-
-        private void PersistenceTimerTick(object sender, EventArgs e)
-        {
-            persistenceTimer.Stop();
-            SaveList();
-            persistenceTimer.Start();
         }
 
         private void SaveList()
@@ -69,6 +54,7 @@ namespace PersistentClipboard
                         lastClippedText = currentText;
                         lock (clippedText) clippedText.Enqueue(new ClippedItem { Id = DateTime.UtcNow.Ticks, Content = currentText });
                         logger.DebugFormat("Added: {0}", lastClippedText);
+                        ThreadPool.QueueUserWorkItem(arg => SaveList());
                     }
                 }
                 m.Result = (IntPtr)0;

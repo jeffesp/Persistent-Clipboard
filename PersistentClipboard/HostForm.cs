@@ -76,7 +76,7 @@ namespace PersistentClipboard
             logger.DebugFormat("Selected: {0}", clippedListBox.SelectedItem);
         }
 
-        private void ClippedListBoxKeyUp(object sender, KeyEventArgs e)
+        private void ClippedListBoxKeyDown(object sender, KeyEventArgs e)
         {
             e.Handled = false;
 
@@ -187,6 +187,5 @@ namespace PersistentClipboard
                 Show(DesktopWindow.Instance);
             }
         }
-
     }
 }

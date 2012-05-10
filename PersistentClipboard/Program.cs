@@ -12,23 +12,33 @@ namespace PersistentClipboard
         [STAThread]
         static void Main()
         {
-            Logger = new SimpleLogger.SimpleLogger(true, Status.Debug, new ILogDestination[] { new DebugWindowLogDestination() });
-
-            Application.ThreadException += new ThreadExceptionEventHandler(new ThreadExceptionHandler().ApplicationThreadException);
-
+            FileLogDestination fileLogger = null;
             try
             {
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-            }
-            catch (Exception e)
-            {
-                // Probably want something a little more sophisticated than this
-                MessageBox.Show(e.Message, "The application could not initialize.", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Environment.Exit(0);
-            }
+                fileLogger = new FileLogDestination("test.log");
+                Logger = new SimpleLogger.SimpleLogger(true, Status.Error, new ILogDestination[] { fileLogger });
 
-            Application.Run(new HostForm(Logger));
+                Application.ThreadException += new ThreadExceptionEventHandler(new ThreadExceptionHandler().ApplicationThreadException);
+
+                try
+                {
+                    Application.EnableVisualStyles();
+                    Application.SetCompatibleTextRenderingDefault(false);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error("App startup", e);
+                    // Probably want something a little more sophisticated than this
+                    MessageBox.Show(e.Message, "The application could not initialize.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Environment.Exit(0);
+                }
+
+                Application.Run(new HostForm(Logger));
+            }
+            finally
+            {
+                if (fileLogger != null) fileLogger.Dispose();
+            }
         }
     }
 

@@ -1,23 +1,38 @@
-Persistent Clipboard
+# Persistent Clipboard
 
-Saves clipboard entries for later use. Keeps the information around across 
-restarts. 
+### Basic Description
+
+Saves clipboard entries for later use. Keeps the information around across restarts. 
+
+### Current Features
 
 - Will not save blank or duplicate (same text twice in a row) entries.
 - `Ctrl+Shift+Ins` will show the form.
 - Enter or Click on an item puts that item on the clipboard and hides the form.
 - `Esc` will hide the form without making a selection
-- `/` then type to search history for specific item
-- Note: If you use it and run Visual Studio as an Administrator, you will need to run this as an admin as well.
+- `/` or `?` then type in textbox to search history for specific item
+	- `Esc` while searching will exit the search
+- Note: If you run an app as an Administrator, you will need to run this as an admin as well to get the data from that app.
 
-TODO:
+### Current TODO:
 
-1. Better searching in history
-2. Add context menu when clicking on with delete and clear commands.
+1. Add context menu when left clicking on item with delete and clear commands.
+2. Configurable number of items in history.
+2. Handle html, rtf, csv text types from clipboard.
 3. Allow user defined static entries.
-4. NotifyIcon 
-5. Allow portable mode which stores data in a subdirectory instead of user profile.
-6. Auto paste on select - how do you even do that?
+4. Support images from clipboard
+	1. Processing of images so we are not storing bmps in the file system (?).
+	2. Display thumbnail in the list.
+	3. How do you search for an image?
+5. Support files from clipboard
+	1. What data comes in from the clipboard? Would we be able to get file content? Would we want to?
+	2. How do you display that information in the list?
+	3. Searching needed for filenames. Search on file attributes?
+6. Support drag and drop 
+	1. drop items to it instead of saving on cut/copy.
+	2. drag from to put back on clipboard and paste into destination application.
+	3. Will need to revisit how we show/hide in order to do this.
+6. Allow portable mode which stores data in a subdirectory instead of user profile.
 
 LICENSE
 

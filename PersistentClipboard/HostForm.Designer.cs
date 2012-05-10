@@ -45,12 +45,12 @@
             this.clippedListBox.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.clippedListBox.FormattingEnabled = true;
             this.clippedListBox.ItemHeight = 17;
-            this.clippedListBox.Location = new System.Drawing.Point(0, -2);
+            this.clippedListBox.Location = new System.Drawing.Point(0, 0);
             this.clippedListBox.Name = "clippedListBox";
             this.clippedListBox.Size = new System.Drawing.Size(384, 527);
             this.clippedListBox.TabIndex = 0;
             this.clippedListBox.Click += new System.EventHandler(this.ClippedListBoxClick);
-            this.clippedListBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ClippedListBoxKeyUp);
+            this.clippedListBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ClippedListBoxKeyDown);
             // 
             // searchText
             // 
