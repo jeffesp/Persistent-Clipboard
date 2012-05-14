@@ -129,6 +129,7 @@
       <DependentUpon>CollectionForm.cs</DependentUpon>
     </Compile>
     <Compile Include="DesktopWindow.cs" />
+    <Compile Include="GlobalMouse.cs" />
     <Compile Include="HostForm.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -55,6 +55,7 @@ namespace PersistentClipboard
             collectionForm = new CollectionForm(logger);
             collectionForm.EnableCollection();
             new GlobalHotkey(KeyboardHookKeyDown, Keys.Insert, Keys.Control | Keys.Shift);
+            new GlobalMouse();
             UpdateItems();
         }
 
