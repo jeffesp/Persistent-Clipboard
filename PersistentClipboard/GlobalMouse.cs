@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
 namespace PersistentClipboard
@@ -9,14 +8,17 @@ namespace PersistentClipboard
     {
         private const int WH_MOUSE_LL = 14;
         private readonly IntPtr hookId = IntPtr.Zero;
+        private Action<PointerData> onMouseMove;
 
-        internal GlobalMouse()
+        internal GlobalMouse(Action<PointerData> onMouseMove)
         {
             using (Process curProcess = Process.GetCurrentProcess())
             using (ProcessModule curModule = curProcess.MainModule)
             {
                 hookId = SetWindowsHookEx(WH_MOUSE_LL, MouseHookProc, GetModuleHandle(curModule.ModuleName), 0);
             }
+
+            this.onMouseMove = onMouseMove;
         }
 
         ~GlobalMouse()
@@ -24,37 +26,35 @@ namespace PersistentClipboard
             UnhookWindowsHookEx(hookId);
         }
 
-
         [StructLayout(LayoutKind.Sequential)]
-        public class POINT 
+        public class Point 
         {
             public int x;
             public int y;
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public class MouseHookStruct 
+        public class PointerData
         {
-            public POINT pt;
+            public Point pt;
             public int hwnd;
             public int wHitTestCode;
             public int dwExtraInfo;
         }
+
         public IntPtr MouseHookProc(int nCode, IntPtr wParam, IntPtr lParam)
         {
-            //Marshall the data from the callback.
-            MouseHookStruct MyMouseHookStruct = (MouseHookStruct) Marshal.PtrToStructure(lParam, typeof(MouseHookStruct));
-
             if (nCode < 0)
             {
                 return CallNextHookEx(WH_MOUSE_LL, nCode, wParam, lParam);
             }
-            else
-            {
-                String strCaption = "x = " + MyMouseHookStruct.pt.x.ToString("d") + "  y = " + MyMouseHookStruct.pt.y.ToString("d");
-                Debug.WriteLine(strCaption);
-                return CallNextHookEx(WH_MOUSE_LL, nCode, wParam, lParam); 
-            }
+
+            //Marshall the data from the callback.
+            PointerData pointerData = (PointerData) Marshal.PtrToStructure(lParam, typeof(PointerData));
+            if (pointerData != null)
+                onMouseMove(pointerData);
+
+            return CallNextHookEx(WH_MOUSE_LL, nCode, wParam, lParam); 
         }
 
         public delegate IntPtr MouseHookProcs(int nCode, IntPtr wParam, IntPtr lParam);

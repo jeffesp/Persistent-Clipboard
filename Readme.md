@@ -8,6 +8,7 @@ Saves clipboard entries for later use. Keeps the information around across resta
 
 - Will not save blank or duplicate (same text twice in a row) entries.
 - `Ctrl+Shift+Ins` will show the form.
+- Moving the mouse to the upper left corner of the display will show the form.
 - Enter or Click on an item puts that item on the clipboard and hides the form.
 - `Esc` will hide the form without making a selection
 - `/` or `?` then type in textbox to search history for specific item
