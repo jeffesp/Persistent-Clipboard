@@ -55,7 +55,7 @@ namespace PersistentClipboard
             collectionForm = new CollectionForm(logger);
             collectionForm.EnableCollection();
             new GlobalHotkey(KeyboardHookKeyDown, Keys.Insert, Keys.Control | Keys.Shift);
-            new GlobalMouse();
+            new GlobalMouse(GlobalMouseMove);
             UpdateItems();
         }
 
@@ -143,6 +143,14 @@ namespace PersistentClipboard
         {
             logger.DebugFormat("Caught keyboard hook. Currently: {0}", Visible ? "Visible" : "Not Visible");
             Show(DesktopWindow.Instance);
+        }
+
+        private void GlobalMouseMove(GlobalMouse.PointerData pointer)
+        {
+            if (!Visible && pointer.pt.x < 4 && pointer.pt.y < 4)
+            {
+                Show(DesktopWindow.Instance);
+            }
         }
 
         private void SearchTextTextChanged(object sender, EventArgs e)
