@@ -147,7 +147,7 @@ namespace PersistentClipboard
 
         private void GlobalMouseMove(GlobalMouse.PointerData pointer)
         {
-            if (!Visible && pointer.pt.x < 4 && pointer.pt.y < 4)
+            if (!Visible && pointer.Coordinates.X < 4 && pointer.Coordinates.Y < 4)
             {
                 Show(DesktopWindow.Instance);
             }
