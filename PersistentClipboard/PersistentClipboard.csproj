@@ -106,6 +106,9 @@
     <Reference Include="Collections">
       <HintPath>..\lib\Collections.dll</HintPath>
     </Reference>
+    <Reference Include="MouseKeyboardActivityMonitor">
+      <HintPath>..\lib\MouseKeyboardActivityMonitor.dll</HintPath>
+    </Reference>
     <Reference Include="SimpleLogger">
       <HintPath>..\lib\SimpleLogger.dll</HintPath>
     </Reference>

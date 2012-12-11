@@ -10,6 +10,7 @@ namespace PersistentClipboard
         private IClicpboardCollector collectionForm;
         private bool searching;
         private readonly ISimpleLogger logger;
+        private readonly GlobalHotkey hotkey;
 
         public HostForm(ISimpleLogger logger)
         {
@@ -21,12 +22,14 @@ namespace PersistentClipboard
             Deactivate += HostFormDeactivate;
             FormClosing += HostFormFormClosing;
             trayIcon.MouseClick += TrayIconClick;
+            hotkey = new GlobalHotkey(KeyboardHookKeyDown, Keys.Insert, Keys.Control | Keys.Shift);
         }
 
         void HostFormFormClosing(object sender, FormClosingEventArgs e)
         {
             trayIcon.Dispose();
             collectionForm.Dispose();
+            hotkey.Dispose();
         }
 
         void HostFormActivated(object sender, EventArgs e)
@@ -54,7 +57,6 @@ namespace PersistentClipboard
         {
             collectionForm = new CollectionForm(logger);
             collectionForm.EnableCollection();
-            new GlobalHotkey(KeyboardHookKeyDown, Keys.Insert, Keys.Control | Keys.Shift);
             UpdateItems();
         }
 
