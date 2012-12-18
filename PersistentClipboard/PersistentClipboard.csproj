@@ -106,14 +106,12 @@
     <Reference Include="Collections">
       <HintPath>..\lib\Collections.dll</HintPath>
     </Reference>
-    <Reference Include="MouseKeyboardActivityMonitor">
-      <HintPath>..\lib\MouseKeyboardActivityMonitor.dll</HintPath>
-    </Reference>
     <Reference Include="SimpleLogger">
       <HintPath>..\lib\SimpleLogger.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -131,7 +129,6 @@
     <Compile Include="CollectionForm.Designer.cs">
       <DependentUpon>CollectionForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DesktopWindow.cs" />
     <Compile Include="HostForm.cs">
       <SubType>Form</SubType>
     </Compile>

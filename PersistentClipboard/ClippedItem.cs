@@ -2,7 +2,7 @@
 {
     public class ClippedItem
     {
-        public long Id { get; set; }
+        public long Timestamp { get; set; }
         public string Content { get; set; }
 
         public override string ToString()

@@ -143,7 +143,7 @@ namespace PersistentClipboard
         private void KeyboardHookKeyDown()
         {
             logger.DebugFormat("Caught keyboard hook. Currently: {0}", Visible ? "Visible" : "Not Visible");
-            Show(DesktopWindow.Instance);
+            Show();
         }
 
         private void SearchTextTextChanged(object sender, EventArgs e)
@@ -186,7 +186,7 @@ namespace PersistentClipboard
         {
             if (e.Button == MouseButtons.Left)
             {
-                Show(DesktopWindow.Instance);
+                Show();
             }
         }
     }

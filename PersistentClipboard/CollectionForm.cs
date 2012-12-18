@@ -52,7 +52,7 @@ namespace PersistentClipboard
                     if (!currentText.Equals(lastClippedText) && !String.IsNullOrEmpty(currentText.Trim()))
                     {
                         lastClippedText = currentText;
-                        lock (clippedText) clippedText.Enqueue(new ClippedItem { Id = DateTime.UtcNow.Ticks, Content = currentText });
+                        lock (clippedText) clippedText.Enqueue(new ClippedItem { Timestamp = DateTime.UtcNow.Ticks, Content = currentText });
                         logger.DebugFormat("Added: {0}", lastClippedText);
                         ThreadPool.QueueUserWorkItem(arg => SaveList());
                     }
@@ -64,7 +64,7 @@ namespace PersistentClipboard
 
         public new void Dispose()
         {
-            SaveList();
+            //SaveList();
             base.Dispose();
             logger.Info("Closed database and stopped collecting clippings.");
         }
@@ -86,7 +86,7 @@ namespace PersistentClipboard
                 {
                     items = clippedText.ToList();
                 }
-                return items.OrderByDescending(item => item.Id);
+                return items.OrderByDescending(item => item.Timestamp);
             }
         }
 
