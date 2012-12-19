@@ -5,15 +5,12 @@ namespace PersistentClipboard
 {
     public interface IClicpboardCollector : IDisposable
     {
-        string GetLastItem();
-        bool HasItems { get; }
         IEnumerable<ClippedItem> Search(string text);
 
+        bool HasItems { get; }
         void RemoveItem(ClippedItem item);
         
         void EnableCollection();
         void DisableCollection();
-
-        new void Dispose();
     }
 }

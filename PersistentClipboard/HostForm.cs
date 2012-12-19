@@ -11,6 +11,7 @@ namespace PersistentClipboard
         private bool searching;
         private readonly ISimpleLogger logger;
         private readonly GlobalHotkey hotkey;
+        private readonly ContextMenuStrip trayIconContextMenu;
 
         public HostForm(ISimpleLogger logger)
         {
@@ -23,13 +24,22 @@ namespace PersistentClipboard
             FormClosing += HostFormFormClosing;
             trayIcon.MouseClick += TrayIconClick;
             hotkey = new GlobalHotkey(KeyboardHookKeyDown, Keys.Insert, Keys.Control | Keys.Shift);
+
+            trayIconContextMenu = new ContextMenuStrip();
+            trayIconContextMenu.ShowImageMargin = false;
+            var exitItem = trayIconContextMenu.Items.Add("Exit");
+            exitItem.Click += ExitClick;
+
+            trayIcon.ContextMenuStrip = trayIconContextMenu;
+        }
+
+        private void ExitClick(object sender, EventArgs e)
+        {
+            Close();
         }
 
         void HostFormFormClosing(object sender, FormClosingEventArgs e)
         {
-            trayIcon.Dispose();
-            collectionForm.Dispose();
-            hotkey.Dispose();
         }
 
         void HostFormActivated(object sender, EventArgs e)
@@ -188,6 +198,25 @@ namespace PersistentClipboard
             {
                 Show();
             }
+        }
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+                if (trayIcon != null)
+                    trayIcon.Dispose();
+                if (collectionForm != null)
+                    collectionForm.Dispose();
+                if (hotkey != null)
+                    hotkey.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

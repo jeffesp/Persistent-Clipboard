@@ -4,22 +4,20 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.IO;
-using System.Xml.Linq;
-using System.Xml;
 
 using Collections;
 
 namespace PersistentClipboard
 {
-    public class ClippedItemFile
+    public class ClippedItemFile : IDisposable
     {
-        private static string appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"JeffEsp\PersistentClipboard");
-        private static string persistenceFile = Path.Combine(appDataFolder, "PersistentDictionary.dat");
-        private static byte[] entropy = new byte[] { 127,133,211,54,65,125,183,19,157,13,70,171,176,7,251,68 };
+        private static readonly string appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"JeffEsp\PersistentClipboard");
+        private static readonly string persistenceFile = Path.Combine(appDataFolder, "PersistentDictionary.dat");
+        private static readonly byte[] entropy = new byte[] { 127,133,211,54,65,125,183,19,157,13,70,171,176,7,251,68 };
 
-        private static long lastSavedTimestamp;
+        private long lastSavedTimestamp;
 
-        public static CircularQueue<ClippedItem> Load()
+        public CircularQueue<ClippedItem> Load()
         {
             var items = new List<ClippedItem>();
 
@@ -43,7 +41,7 @@ namespace PersistentClipboard
             return result.Reverse();
         }
 
-        public static void Save(List<ClippedItem> items)
+        public void Save(List<ClippedItem> items)
         {
             EnsureDataDirectoryExists();
 
@@ -53,11 +51,12 @@ namespace PersistentClipboard
             }
         }
 
-        private static void LoadFromStream(Stream s, List<ClippedItem> items)
+        private void LoadFromStream(Stream s, List<ClippedItem> items)
         {
             // TODO: this can blow up in loading the file, or parsing ints from the file.
             // should handle this by deleting the file, and then letting the user know about this.
-            while (s.Position != s.Length) // reader.EndOfStream was not working?
+            s.Seek(0, SeekOrigin.Begin);
+            while (s.Position != s.Length) 
             {
                 byte[] timestampBytes = new byte[8];
                 byte[] lengthBytes = new byte[4];
@@ -74,7 +73,7 @@ namespace PersistentClipboard
             }
         }
 
-        private static void SaveToStream(Stream s, IEnumerable<ClippedItem> items)
+        private void SaveToStream(Stream s, IEnumerable<ClippedItem> items)
         {
             if (items == null)
                 throw new ArgumentNullException("items");
@@ -107,5 +106,8 @@ namespace PersistentClipboard
             }
         }
 
+        public void Dispose()
+        {
+        }
     }
 }

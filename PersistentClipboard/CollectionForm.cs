@@ -13,18 +13,19 @@ namespace PersistentClipboard
     public partial class CollectionForm : Form, IClicpboardCollector
     {        
         private const int WM_CLIPBOARDUPDATE = 0x31d;
-        private readonly object fileLocker = new object();
         private readonly ISimpleLogger logger;
         private readonly CircularQueue<ClippedItem> clippedText;
+        private readonly ClippedItemFile file;
         private string lastClippedText;
 
         public CollectionForm(ISimpleLogger logger)
         {
             this.logger = logger;
+            file = new ClippedItemFile();
             InitializeComponent();
-            lock (fileLocker)
+            lock (file)
             {
-                clippedText = ClippedItemFile.Load();
+                clippedText = file.Load();
             }
             lock (clippedText)
             {
@@ -39,7 +40,7 @@ namespace PersistentClipboard
         {
             List<ClippedItem> items;
             lock (clippedText) items = clippedText.ToList();
-            lock (fileLocker) ClippedItemFile.Save(items);
+            lock (file) file.Save(items);
         }
 
         protected override void WndProc(ref Message m)
@@ -62,10 +63,12 @@ namespace PersistentClipboard
             base.WndProc(ref m);
         }
 
-        public new void Dispose()
+        void IDisposable.Dispose()
         {
             //SaveList();
-            base.Dispose();
+            Dispose();
+            if (file != null)
+                file.Dispose();
             logger.Info("Closed database and stopped collecting clippings.");
         }
 
@@ -77,7 +80,7 @@ namespace PersistentClipboard
             }
         }
 
-        private IOrderedEnumerable<ClippedItem> OrderedItems
+        private IEnumerable<ClippedItem> OrderedItems
         {
             get
             {
@@ -106,11 +109,6 @@ namespace PersistentClipboard
             // do in background as to not block UI thread for file IO.
             ThreadPool.QueueUserWorkItem(arg => SaveList());
             logger.DebugFormat("Removed: {0}", item);
-        }
-
-        public string GetLastItem()
-        {
-            return lastClippedText;
         }
 
         public void EnableCollection()
