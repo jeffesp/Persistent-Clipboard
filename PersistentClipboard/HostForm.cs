@@ -218,5 +218,10 @@ namespace PersistentClipboard
             }
             base.Dispose(disposing);
         }
+
+        private void HostForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

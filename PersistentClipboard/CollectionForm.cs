@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 
-using Collections;
 using SimpleLogger;
 
 namespace PersistentClipboard
@@ -14,7 +13,6 @@ namespace PersistentClipboard
     {        
         private const int WM_CLIPBOARDUPDATE = 0x31d;
         private readonly ISimpleLogger logger;
-        private readonly CircularQueue<ClippedItem> clippedText;
         private readonly ClippedItemFile file;
         private string lastClippedText;
 
@@ -25,12 +23,9 @@ namespace PersistentClipboard
             InitializeComponent();
             lock (file)
             {
-                clippedText = file.Load();
-            }
-            lock (clippedText)
-            {
-                if (clippedText.Count > 0)
-                    lastClippedText = clippedText.First().Content;
+                file.Load();
+                if (file.Count > 0)
+                    lastClippedText = file.First().Content;
             }
 
             logger.InfoFormat("Loaded database and starting to collect clippings.");
@@ -38,9 +33,10 @@ namespace PersistentClipboard
 
         private void SaveList()
         {
-            List<ClippedItem> items;
-            lock (clippedText) items = clippedText.ToList();
-            lock (file) file.Save(items);
+            lock (file)
+            {
+                file.Save();
+            }
         }
 
         protected override void WndProc(ref Message m)
@@ -53,7 +49,7 @@ namespace PersistentClipboard
                     if (!currentText.Equals(lastClippedText) && !String.IsNullOrEmpty(currentText.Trim()))
                     {
                         lastClippedText = currentText;
-                        lock (clippedText) clippedText.Enqueue(new ClippedItem { Timestamp = DateTime.UtcNow.Ticks, Content = currentText });
+                        lock (file) file.Add(new ClippedItem { Timestamp = DateTime.UtcNow.Ticks, Content = currentText });
                         logger.DebugFormat("Added: {0}", lastClippedText);
                         ThreadPool.QueueUserWorkItem(arg => SaveList());
                     }
@@ -65,10 +61,12 @@ namespace PersistentClipboard
 
         void IDisposable.Dispose()
         {
-            //SaveList();
+            lock (file)
+            {
+                if (file != null)
+                    file.Dispose();
+            }
             Dispose();
-            if (file != null)
-                file.Dispose();
             logger.Info("Closed database and stopped collecting clippings.");
         }
 
@@ -76,7 +74,7 @@ namespace PersistentClipboard
         {
             get
             {
-                lock(clippedText) return clippedText.Count > 0;
+                lock(file) return file.Count > 0;
             }
         }
 
@@ -85,9 +83,9 @@ namespace PersistentClipboard
             get
             {
                 List<ClippedItem> items;
-                lock (clippedText)
+                lock (file)
                 {
-                    items = clippedText.ToList();
+                    items = file.ToList();
                 }
                 return items.OrderByDescending(item => item.Timestamp);
             }
@@ -105,7 +103,7 @@ namespace PersistentClipboard
 
         public void RemoveItem(ClippedItem item)
         {
-            lock (clippedText) clippedText.Remove(item);
+            lock (file) file.Remove(item);
             // do in background as to not block UI thread for file IO.
             ThreadPool.QueueUserWorkItem(arg => SaveList());
             logger.DebugFormat("Removed: {0}", item);

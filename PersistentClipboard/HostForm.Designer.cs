@@ -30,8 +30,8 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.clippedListBox.BackColor = System.Drawing.SystemColors.Window;
             this.clippedListBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.clippedListBox.Cursor = System.Windows.Forms.Cursors.Default;
             this.clippedListBox.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.clippedListBox.FormattingEnabled = true;
             this.clippedListBox.ItemHeight = 17;
             this.clippedListBox.Location = new System.Drawing.Point(0, 0);
             this.clippedListBox.Name = "clippedListBox";
@@ -73,6 +73,7 @@
             this.ShowInTaskbar = false;
             this.Text = "Persistent Clipboard";
             this.TopMost = true;
+            this.Load += new System.EventHandler(this.HostForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
