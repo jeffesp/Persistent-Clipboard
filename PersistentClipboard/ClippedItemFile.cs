@@ -2,38 +2,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using System.Text;
 using System.IO;
 
 namespace PersistentClipboard
 {
-    /*
-     * File layout:
-     * Varint value of number of index blocks
-     * BLOCKSIZE blocks at beginning of file that have index. Can be read as serialized index structs.
-     * Entries that can be read using the index.
-     * 
-     * Total file size is limited by available space, individual record size is limited at 2GB.
-     *
-     * TODO: could have two filestreams in file at all times or something like it, so can read/write index and data independently.
-     */
-
     public class ClippedItemFile : IDisposable, ICollection<ClippedItem>
     {
         private static readonly string appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"JeffEsp\PersistentClipboard");
         private static readonly string persistenceFile = Path.Combine(appDataFolder, "PersistentDictionary.dat");
-        private static readonly byte[] entropy = new byte[] {127, 133, 211, 54, 65, 125, 183, 19, 157, 13, 70, 171, 176, 7, 251, 68};
-        private static readonly UInt32 blockSize = 4096;
+        private const UInt32 blockSize = 4096;
 
         private long lastSavedTimestamp;
         private List<ClippedItem> items;
-        private FileStream persistentData;
         private bool writeFullFile;
+        private readonly FileStream persistentData;
+        private readonly IContentEncoder contentEncoder;
 
-        public ClippedItemFile()
+        public ClippedItemFile() : this(new ProtectedDataEncoder()) { }
+
+        public ClippedItemFile(IContentEncoder contentEncoder)
         {
+            this.contentEncoder = contentEncoder;
             EnsureDataDirectoryExists();
             persistentData = File.Open(persistenceFile, FileMode.OpenOrCreate, FileAccess.ReadWrite);
             if (persistentData.Length == 0)
@@ -120,7 +110,6 @@ namespace PersistentClipboard
             persistentData.Seek(0, SeekOrigin.Begin);
 
             var headerSize = GetHeaderSize();
-            // TODO: read header data
             persistentData.Seek(headerSize, SeekOrigin.Begin);
 
             while (persistentData.Position < persistentData.Length)
@@ -128,17 +117,26 @@ namespace PersistentClipboard
                 byte[] timestampBytes = new byte[8];
                 byte[] lengthBytes = new byte[4];
                 persistentData.Read(timestampBytes, 0, 8);
+                ContentType contentType = (ContentType)persistentData.ReadByte();
                 persistentData.Read(lengthBytes, 0, 4);
                 int length = BitConverter.ToInt32(lengthBytes, 0);
 
                 byte[] contentBytes = new byte[length];
                 persistentData.Read(contentBytes, 0, length);
-                ClippedItem item = new ClippedItem {Timestamp = BitConverter.ToInt64(timestampBytes, 0), Content = Encoding.Default.GetString(ProtectedData.Unprotect(contentBytes, entropy, DataProtectionScope.CurrentUser))};
+                ClippedItem item = new ClippedItem { 
+                    Timestamp = BitConverter.ToInt64(timestampBytes, 0),
+                    ContentType = ContentType.Text,
+                    Content = Encoding.Default.GetString(contentEncoder.Decode(contentBytes))
+                    //Content = Encoding.Default.GetString(
+                    //    ProtectedData.Unprotect(contentBytes, entropy, DataProtectionScope.CurrentUser)
+                    //)
+                };
                 items.Add(item);
 
-                lastSavedTimestamp = lastSavedTimestamp < item.Timestamp ? item.Timestamp : lastSavedTimestamp;
+                UpdateLastSavedTimestamp(item);
             }
         }
+
 
         private long GetHeaderSize()
         {
@@ -172,8 +170,11 @@ namespace PersistentClipboard
         {
             foreach (ClippedItem item in clippedItems)
             {
+                //var content = ProtectedData.Protect(Encoding.Default.GetBytes(item.Content), entropy, DataProtectionScope.CurrentUser);
+                var content = contentEncoder.Encode(Encoding.Default.GetBytes(item.Content));
+
                 persistentData.Write(BitConverter.GetBytes(item.Timestamp), 0, 8);
-                var content = ProtectedData.Protect(Encoding.Default.GetBytes(item.Content), entropy, DataProtectionScope.CurrentUser);
+                persistentData.WriteByte((byte)item.ContentType);
                 persistentData.Write(BitConverter.GetBytes(content.Length), 0, 4);
                 persistentData.Write(content, 0, content.Length);
             }
@@ -189,24 +190,15 @@ namespace PersistentClipboard
             }
         }
 
-        private void WriteIndex(List<ClippedItem> items)
-        {
-
-        }
-
         public void Dispose()
         {
             if (persistentData != null)
                 persistentData.Close();
         }
 
-    }
-
-//    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    struct IndexEntry
-    {
-        public Guid Id;
-        public long Position;
-        public int Length;
+        private void UpdateLastSavedTimestamp(ClippedItem item)
+        {
+            lastSavedTimestamp = lastSavedTimestamp < item.Timestamp ? item.Timestamp : lastSavedTimestamp;
+        }
     }
 }
