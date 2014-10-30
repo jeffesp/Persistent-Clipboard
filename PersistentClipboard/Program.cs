@@ -15,10 +15,10 @@ namespace PersistentClipboard
             FileLogDestination fileLogger = null;
             try
             {
-                fileLogger = new FileLogDestination("test.log");
+                fileLogger = new FileLogDestination("persistentclipboard.log");
                 Logger = new SimpleLogger.SimpleLogger(true, Status.Error, new ILogDestination[] { fileLogger });
 
-                Application.ThreadException += new ThreadExceptionEventHandler(new ThreadExceptionHandler().ApplicationThreadException);
+                Application.ThreadException += new ThreadExceptionHandler().ApplicationThreadException;
 
                 try
                 {
