@@ -1,7 +1,16 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistentClipboard", "PersistentClipboard\PersistentClipboard.csproj", "{BE78B406-919C-4F51-A29E-AC28A7D9BB8B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistentClipboard.Tests", "PersistentClipboard.Tests\PersistentClipboard.Tests.csproj", "{FEEEC6B6-4D1F-41DE-90C8-1D5F5E14A32E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{D96952FD-4EFF-4290-81EA-91B5D43849F7}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +28,12 @@ Global
 		{BE78B406-919C-4F51-A29E-AC28A7D9BB8B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BE78B406-919C-4F51-A29E-AC28A7D9BB8B}.Release|x86.ActiveCfg = Release|x86
 		{BE78B406-919C-4F51-A29E-AC28A7D9BB8B}.Release|x86.Build.0 = Release|x86
+		{FEEEC6B6-4D1F-41DE-90C8-1D5F5E14A32E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEEEC6B6-4D1F-41DE-90C8-1D5F5E14A32E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEEEC6B6-4D1F-41DE-90C8-1D5F5E14A32E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FEEEC6B6-4D1F-41DE-90C8-1D5F5E14A32E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEEEC6B6-4D1F-41DE-90C8-1D5F5E14A32E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEEEC6B6-4D1F-41DE-90C8-1D5F5E14A32E}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

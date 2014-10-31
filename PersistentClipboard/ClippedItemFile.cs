@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 
@@ -10,8 +9,6 @@ namespace PersistentClipboard
 {
     public class ClippedItemFile : IDisposable, ICollection<ClippedItem>
     {
-        private static readonly string appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"JeffEsp\PersistentClipboard");
-        private static readonly string persistenceFile = Path.Combine(appDataFolder, "PersistentDictionary.dat");
         private const UInt32 blockSize = 4096;
 
         private long lastSavedTimestamp;
@@ -19,19 +16,15 @@ namespace PersistentClipboard
         private bool writeFullFile;
         private readonly Stream persistentData;
         private readonly IContentEncoder contentEncoder;
-        private readonly FileBase file;
-        private readonly DirectoryWrapper directory;
 
-        public ClippedItemFile() : this(new ProtectedDataEncoder(), new FileWrapper(), new DirectoryWrapper()) { }
+        public ClippedItemFile() : this(new ProtectedDataEncoder(), new FileStreamProvider()) { }
 
-        public ClippedItemFile(IContentEncoder contentEncoder, FileBase file, DirectoryWrapper directory)
+        public ClippedItemFile(IContentEncoder contentEncoder, IDataStreamProvider dataStream)
         {
             this.contentEncoder = contentEncoder;
-            this.file = file;
-            this.directory = directory;
 
-            EnsureDataDirectoryExists();
-            persistentData = file.Open(persistenceFile, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            persistentData = dataStream.GetStream();
+
             if (persistentData.Length == 0)
                 persistentData.SetLength(blockSize * 4);
             WriteHeaderSize();
@@ -133,9 +126,6 @@ namespace PersistentClipboard
                     Timestamp = BitConverter.ToInt64(timestampBytes, 0),
                     ContentType = contentType,
                     Content = Encoding.Default.GetString(contentEncoder.Decode(contentBytes))
-                    //Content = Encoding.Default.GetString(
-                    //    ProtectedData.Unprotect(contentBytes, entropy, DataProtectionScope.CurrentUser)
-                    //)
                 };
                 items.Add(item);
 
@@ -176,7 +166,6 @@ namespace PersistentClipboard
         {
             foreach (ClippedItem item in clippedItems)
             {
-                //var content = ProtectedData.Protect(Encoding.Default.GetBytes(item.Content), entropy, DataProtectionScope.CurrentUser);
                 var content = contentEncoder.Encode(Encoding.Default.GetBytes(item.Content));
 
                 persistentData.Write(BitConverter.GetBytes(item.Timestamp), 0, 8);
@@ -186,14 +175,6 @@ namespace PersistentClipboard
             }
 
             lastSavedTimestamp = clippedItems.OrderByDescending(i => i.Timestamp).First().Timestamp;
-        }
-
-        private void EnsureDataDirectoryExists()
-        {
-            if (!directory.Exists(appDataFolder))
-            {
-                directory.CreateDirectory(appDataFolder);
-            }
         }
 
         public void Dispose()
